@@ -1,15 +1,34 @@
 import React from 'react';
-import {StyleSheet, SafeAreaView, View} from 'react-native';
-import WelcomeScreen from './screens/WelcomeScreen';
+import {NavigationContainer} from '@react-navigation/native';
+import CommonChatNavigator from './navigation/CommonChatNavigator';
+import firebase from 'firebase';
+import {
+  API_KEY,
+  AUTH_DOMAIN,
+  STORAGE_BUCKET,
+  PROJECT_ID,
+  MESSAGE_SENDER_ID,
+  APP_ID,
+} from '@env';
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey: API_KEY,
+    authDomain: AUTH_DOMAIN,
+    projectId: PROJECT_ID,
+    storageBucket: STORAGE_BUCKET,
+    messagingSenderId: MESSAGE_SENDER_ID,
+    appId: APP_ID,
+  });
+}
 
 const App = () => {
   return (
-    <SafeAreaView>
-      <WelcomeScreen />
-    </SafeAreaView>
+    <NavigationContainer>
+      <CommonChatNavigator />
+    </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default App;
