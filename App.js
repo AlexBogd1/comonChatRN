@@ -1,11 +1,12 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, SafeAreaView, View} from 'react-native';
+import WelcomeScreen from './screens/WelcomeScreen';
 
 const App = () => {
   return (
-    <View>
-      <Text>Initial state</Text>
-    </View>
+    <SafeAreaView>
+      <WelcomeScreen />
+    </SafeAreaView>
   );
 };
 
