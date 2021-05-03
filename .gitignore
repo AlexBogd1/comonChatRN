@@ -35,6 +35,9 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
+# The file containing environment variables
+.env
+
 # BUCK
 buck-out/
 \.buckd/
@@ -57,3 +60,5 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+
