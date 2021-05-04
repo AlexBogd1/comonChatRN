@@ -42,7 +42,7 @@ const CommonChatNavigator = () => {
         name={'Chat'}
         component={ChatScreen}
         options={({navigation}) => ({
-          headerTitle: 'Chat Screen',
+          headerTitle: 'Your Chat',
           headerLeft: () => (
             <Button
               icon={() => (
