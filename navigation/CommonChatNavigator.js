@@ -57,11 +57,4 @@ const CommonChatNavigator = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 20,
-    width: '60%',
-  },
-});
-
 export default CommonChatNavigator;

@@ -12,7 +12,7 @@ import {
   APP_ID,
 } from '@env';
 import {Button} from 'react-native-paper';
-import { View } from 'react-native';
+import {View} from 'react-native';
 
 // Initialize Firebase
 if (!firebase.apps.length) {
@@ -24,16 +24,16 @@ if (!firebase.apps.length) {
     messagingSenderId: MESSAGE_SENDER_ID,
     appId: APP_ID,
   });
-  firebase.firestore().settings({ experimentalForceLongPolling: true });
+  firebase.firestore().settings({experimentalForceLongPolling: true});
 }
-
-export const db = firebase.firestore();
+export const auth = firebase.auth();
+export const firestore = firebase.firestore();
 
 const App = () => {
   return (
     <NavigationContainer>
       <CommonChatNavigator />
-    </NavigationContainer>   
+    </NavigationContainer>
   );
 };
 
