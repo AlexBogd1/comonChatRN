@@ -2,13 +2,14 @@ import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {Avatar, IconButton} from 'react-native-paper';
 
-const Message = ({text, userName, isOwner, time}) => {
-  const messageBackColor = 'rgba(86, 147, 32, 0.2)';
+const Message = ({id, text, userName, isOwner, time, removeMessage}) => {
+  const messageOwnerBackColor = 'rgba(86, 147, 32, 0.2)';
   const avatarName = userName
     .split(' ')
     .map(str => str[0])
     .join('');
   const mesDate = time ? new Date((time.seconds + 10800) * 1000) : new Date();
+
   return (
     <View
       style={
@@ -23,7 +24,7 @@ const Message = ({text, userName, isOwner, time}) => {
         <View
           style={
             isOwner
-              ? {...styles.message, backgroundColor: messageBackColor}
+              ? {...styles.message, backgroundColor: messageOwnerBackColor}
               : styles.message
           }>
           <Text>{text}</Text>
@@ -39,9 +40,9 @@ const Message = ({text, userName, isOwner, time}) => {
       </View>
       {isOwner && (
         <IconButton
-          size={15}
+          size={25}
           icon={'delete'}
-          onPress={() => console.log('removed')}
+          onPress={() => removeMessage(id)}
         />
       )}
     </View>
@@ -50,8 +51,7 @@ const Message = ({text, userName, isOwner, time}) => {
 
 const styles = StyleSheet.create({
   messageContainer: {
-    width: '100%',
-    maxWidth: '90%',
+    width: '97%',
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 5,
@@ -80,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Message;
+export default React.memo(Message);

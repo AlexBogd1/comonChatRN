@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {View, Text, FlatList, StyleSheet, TextInput} from 'react-native';
 import {ActivityIndicator, IconButton} from 'react-native-paper';
 import {firestore, auth} from '../App';
@@ -17,19 +17,35 @@ const ChatScreen = () => {
   const indicator = (
     <ActivityIndicator animating={true} color={Colors.primary} />
   );
+  const sendMessage = useCallback(
+    (userId, userName, message) => {
+      const messageTimeMark = new Date().getTime().toString();
+      const newMessage = {
+        id: messageTimeMark,
+        UID: userId,
+        userName: userName,
+        text: message,
+        time: firebase.firestore.FieldValue.serverTimestamp(),
+      };
 
-  const sendMessage = (userId, userName, message) => {
-    const newMessage = {
-      UID: userId,
-      userName: userName,
-      text: message,
-      time: firebase.firestore.FieldValue.serverTimestamp(),
-    };
+      firestore
+        .collection('messages')
+        .doc(messageTimeMark)
+        .set(newMessage)
+        .then(res => setMessage(''));
+    },
+    [setMessage],
+  );
+
+  const removeMessage = useCallback(messageId => {
     firestore
       .collection('messages')
-      .add(newMessage)
-      .then(res => setMessage(''));
-  };
+      .doc(messageId)
+      .delete()
+      .catch(error => {
+        console.error('Error removing document: ', error);
+      });
+  }, []);
 
   return loading ? (
     indicator
@@ -39,10 +55,12 @@ const ChatScreen = () => {
         data={messageFromFirebase}
         renderItem={dataItem => (
           <Message
+            id={dataItem.item.id}
             text={dataItem.item.text}
             userName={dataItem.item.userName}
             isOwner={dataItem.item.UID === user.uid}
             time={dataItem.item.time}
+            removeMessage={removeMessage}
           />
         )}
         keyExtractor={item => item.time}
