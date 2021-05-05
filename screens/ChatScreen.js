@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useState, useRef} from 'react';
 import {View, Text, FlatList, StyleSheet, TextInput} from 'react-native';
 import {ActivityIndicator, IconButton} from 'react-native-paper';
 import {firestore, auth} from '../App';
@@ -14,9 +14,18 @@ const ChatScreen = () => {
   const [messageFromFirebase, loading] = useCollectionData(
     firestore.collection('messages').orderBy('time'),
   );
+  const flatRef = useRef();
   const indicator = (
     <ActivityIndicator animating={true} color={Colors.primary} />
   );
+
+  const scrollToIndex = useCallback(() => {
+    flatRef.current.scrollToIndex({
+      animated: true,
+      index: messageFromFirebase.length - 1,
+    });
+  }, [messageFromFirebase, flatRef]);
+
   const sendMessage = useCallback(
     (userId, userName, message) => {
       const messageTimeMark = new Date().getTime().toString();
@@ -33,8 +42,9 @@ const ChatScreen = () => {
         .doc(messageTimeMark)
         .set(newMessage)
         .then(res => setMessage(''));
+      scrollToIndex();
     },
-    [setMessage],
+    [setMessage, scrollToIndex],
   );
 
   const removeMessage = useCallback(messageId => {
@@ -52,6 +62,8 @@ const ChatScreen = () => {
   ) : (
     <View style={styles.container}>
       <FlatList
+        initialScrollIndex={messageFromFirebase.length - 1}
+        ref={flatRef}
         data={messageFromFirebase}
         renderItem={dataItem => (
           <Message
