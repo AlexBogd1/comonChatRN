@@ -21,13 +21,16 @@ if (!firebase.apps.length) {
     messagingSenderId: MESSAGE_SENDER_ID,
     appId: APP_ID,
   });
+  firebase.firestore().settings({experimentalForceLongPolling: true});
 }
+export const auth = firebase.auth();
+export const firestore = firebase.firestore();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <CommonChatNavigator />
-    </NavigationContainer>
+      <NavigationContainer>
+        <CommonChatNavigator />
+      </NavigationContainer>
   );
 };
 

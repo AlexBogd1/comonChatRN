@@ -28,4 +28,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PlatformButton;
+export default React.memo(PlatformButton);

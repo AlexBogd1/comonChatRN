@@ -1,4 +1,4 @@
 export default {
-  primary: '#58cc06',
+  primary: 'rgb(105,148,87)',
   secondary: '#ffbb00',
 };

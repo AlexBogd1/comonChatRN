@@ -14,4 +14,4 @@ const HelperTextInput = props => {
   );
 };
 
-export default HelperTextInput;
+export default React.memo(HelperTextInput);
