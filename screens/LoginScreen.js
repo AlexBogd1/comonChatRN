@@ -6,6 +6,8 @@ import PlatformButton from '../components/PlatformButton';
 import HelperTextInput from '../components/HelperTextInput';
 import firebase from 'firebase';
 import {ChatErrors} from '../constants/Errors';
+import {useDispatch} from 'react-redux';
+import {logInUser} from '../state/auth-reducer';
 
 const LoginScreen = ({navigation}) => {
   const initError = {};
@@ -16,27 +18,31 @@ const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [currentError, setCurrentError] = useState(initError);
-
+  const dispatch = useDispatch();
+  
   const loginUser = useCallback(() => {
+    
     if (userName.trim().length >= 3) {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          const user = userCredential.user;
-          user.updateProfile({
-            displayName: userName,
-          });
-          navigation.navigate('Chat');
-        })
-        .catch(error => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setCurrentError({
-            ...currentError,
-            [errorCode]: errorMessage,
-          });
-        });
+      console.log('LoginScreen')
+      dispatch(logInUser(email, password, userName));
+      // firebase
+      //   .auth()
+      //   .createUserWithEmailAndPassword(email, password)
+      //   .then(userCredential => {
+      //     const user = userCredential.user;
+      //     user.updateProfile({
+      //       displayName: userName,
+      //     });
+      //     navigation.navigate('Chat');
+      //   })
+      //   .catch(error => {
+      //     const errorCode = error.code;
+      //     const errorMessage = error.message;
+      //     setCurrentError({
+      //       ...currentError,
+      //       [errorCode]: errorMessage,
+      //     });
+      //   });
     } else {
       setCurrentError({
         ...currentError,

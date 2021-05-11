@@ -2,8 +2,10 @@ import React from 'react';
 import {View, Text, StyleSheet, Platform} from 'react-native';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
+import {useSelector} from 'react-redux';
 
 const WelcomeScreen = ({navigation}) => {
+  
   return (
     <View style={styles.wrapper}>
       <View style={styles.titleSection}>
