@@ -2,6 +2,8 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import CommonChatNavigator from './navigation/CommonChatNavigator';
 import firebase from 'firebase';
+import {Provider} from 'react-redux';
+import {store} from './state/store';
 import {
   API_KEY,
   AUTH_DOMAIN,
@@ -28,9 +30,12 @@ export const firestore = firebase.firestore();
 
 const App = () => {
   return (
+    <Provider store={store}>
       <NavigationContainer>
         <CommonChatNavigator />
       </NavigationContainer>
+    </Provider>
+      
   );
 };
 
