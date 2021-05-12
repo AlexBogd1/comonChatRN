@@ -22,7 +22,7 @@ for (let key in ChatErrors.signIn) {
 }
 
 const initialState = {
-  isLoggedIn: false,
+  isLoggedIn: true,
   loginError: initLoginError,
   signupError: initSignupError,
 };
@@ -77,8 +77,8 @@ export const setSignupError = (errorCode, errorMessage) => ({
 });
 
 //saga action
-export const logInUser = (email, password, userName) => ({
-  type: LOGIN_USER,
+export const signUpUser = (email, password, userName) => ({
+  type: SIGNUP_USER,
   payload: {
     email,
     password,
@@ -86,8 +86,8 @@ export const logInUser = (email, password, userName) => ({
   },
 });
 
-export const signUpUser = (email, password, confirmedPassword) => ({
-  type: SIGNUP_USER,
+export const logInUser = (email, password, confirmedPassword) => ({
+  type: LOGIN_USER,
   payload: {
     email,
     password,
@@ -95,8 +95,8 @@ export const signUpUser = (email, password, confirmedPassword) => ({
   },
 });
 
-// saga
-export function* logInUserWorkerSaga(action) {
+// saga logInUserWorkerSaga
+export function* signupUserWorkerSaga(action) {
   const {userName, email, password} = action.payload;
   try {
     if (userName.trim().length >= 3) {
@@ -112,18 +112,18 @@ export function* logInUserWorkerSaga(action) {
       yield put(setIsLoggedIn(true));
     } else {
       yield put(
-        setLoginError(
-          ChatErrors.login.userNameError,
+        setSignupError(
+          ChatErrors.signIn.userNameError,
           'The user name must be at least 3 character',
         ),
       );
     }
   } catch (error) {
-    yield put(setLoginError(error.code, error.message));
+    yield put(setSignupError(error.code, error.message));
   }
 }
 
-export function* signUpUserWorkerSaga(action) {
+export function* loginUserWorkerSaga(action) {
   const {email, password, confirmedPassword} = action.payload;
   if (password === confirmedPassword) {
     try {
@@ -131,12 +131,12 @@ export function* signUpUserWorkerSaga(action) {
       yield call([auth, auth.signInWithEmailAndPassword], email, password);
       yield put(setIsLoggedIn(true));
     } catch (error) {
-      yield put(setSignupError(error.code, error.message));
+      yield put(setLoginError(error.code, error.message));
     }
   } else {
     yield put(
-      setSignupError(
-        ChatErrors.signIn.wrongConfirmation,
+      setLoginError(
+        ChatErrors.login.wrongConfirmation,
         'Confirmation password not match',
       ),
     );

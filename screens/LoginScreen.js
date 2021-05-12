@@ -1,23 +1,32 @@
 import React, {useState, useCallback} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import {Card, Title} from 'react-native-paper';
+import {Card, TextInput, Title} from 'react-native-paper';
+import HelperTextInput from '../components/HelperTextInput';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
-import HelperTextInput from '../components/HelperTextInput';
 import {ChatErrors} from '../constants/Errors';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {logInUser, setLoginError} from '../state/auth-reducer';
 
 const LoginScreen = ({navigation}) => {
-  const {isLoggedIn, loginError} = useSelector(state => state.auth);
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const {isLoggedIn, loginError} = useSelector(store => store.auth);
   const dispatch = useDispatch();
 
-  const loginUser = useCallback(() => {
-    dispatch(logInUser(email, password, userName));
-  }, [dispatch, email, password, userName]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confPassword, setConfPassword] = useState('');
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+  const buttonIcon = (
+    <TextInput.Icon
+      name={'eye'}
+      onPress={() => setSecureTextEntry(!secureTextEntry)}
+    />
+  );
+
+  const signInUser = useCallback(() => {
+    dispatch(logInUser(email, password, confPassword));
+  }, [dispatch, password, confPassword, email]);
 
   if (isLoggedIn) {
     navigation.navigate('Chat');
@@ -29,57 +38,63 @@ const LoginScreen = ({navigation}) => {
         <Card.Content style={{justifyContent: 'center'}}>
           <Title>Type Your Data Below</Title>
           <HelperTextInput
-            style={{marginTop: 25}}
-            theme={{colors: {primary: Colors.secondary}}}
-            selectionColor={Colors.secondary}
-            label={'User Name'}
-            value={userName}
-            onChangeText={userName => {
-              setUserName(userName);
-              dispatch(setLoginError(ChatErrors.login.userNameError, ''));
-            }}
-            visible={loginError[ChatErrors.login.userNameError]}
-            errorMessage={loginError[ChatErrors.login.userNameError]}
-          />
-          <HelperTextInput
             theme={{colors: {primary: Colors.secondary}}}
             selectionColor={Colors.secondary}
             label={'Email'}
             value={email}
             onChangeText={text => {
               setEmail(text);
-              dispatch(setLoginError(ChatErrors.login.emailAlreadyInUse, ''));
+              dispatch(setLoginError(ChatErrors.login.userDisabled, ''));
               dispatch(setLoginError(ChatErrors.login.invalidEmail, ''));
+              dispatch(setLoginError(ChatErrors.login.userNotFound, ''));
             }}
             visible={
-              loginError[ChatErrors.login.emailAlreadyInUse] ||
-              loginError[ChatErrors.login.invalidEmail]
+              loginError[ChatErrors.login.userDisabled] ||
+              loginError[ChatErrors.login.invalidEmail] ||
+              loginError[ChatErrors.login.userNotFound]
             }
             errorMessage={
-              loginError[ChatErrors.login.emailAlreadyInUse]
-                ? loginError[ChatErrors.login.emailAlreadyInUse]
+              loginError[ChatErrors.login.userDisabled]
+                ? loginError[ChatErrors.login.userDisabled]
                 : loginError[ChatErrors.login.invalidEmail]
+                ? loginError[ChatErrors.login.invalidEmail]
+                : loginError[ChatErrors.login.userNotFound]
             }
           />
           <HelperTextInput
             theme={{colors: {primary: Colors.secondary}}}
             selectionColor={Colors.secondary}
             label={'Password'}
-            secureTextEntry={true}
+            secureTextEntry={secureTextEntry}
             value={password}
             onChangeText={password => {
               setPassword(password);
-              dispatch(setLoginError(ChatErrors.login.weakPassword, ''));
+              dispatch(setLoginError(ChatErrors.login.wrongPassword, ''));
             }}
-            visible={loginError[ChatErrors.login.weakPassword]}
-            errorMessage={loginError[ChatErrors.login.weakPassword]}
+            visible={loginError[ChatErrors.login.wrongPassword]}
+            errorMessage={loginError[ChatErrors.login.wrongPassword]}
+          />
+          <HelperTextInput
+            theme={{colors: {primary: Colors.secondary}}}
+            selectionColor={Colors.secondary}
+            label={'Confirm Password'}
+            secureTextEntry={secureTextEntry}
+            value={confPassword}
+            right={buttonIcon}
+            onChangeText={password => {
+              setConfPassword(password);
+              dispatch(setLoginError(ChatErrors.login.wrongConfirmation, ''));
+            }}
+            visible={loginError[ChatErrors.login.wrongConfirmation]}
+            errorMessage={loginError[ChatErrors.login.wrongConfirmation]}
+            icon={buttonIcon}
           />
           <PlatformButton
             style={styles.button}
             color={Colors.secondary}
             platform={Platform.OS}
             text={'Login'}
-            onPress={loginUser}
+            onPress={signInUser}
           />
         </Card.Content>
       </Card>

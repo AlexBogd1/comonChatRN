@@ -3,8 +3,8 @@ import createSagaMiddleware from 'redux-saga';
 import {takeEvery} from 'redux-saga/effects';
 import {
   authReducer,
-  logInUserWorkerSaga,
-  signUpUserWorkerSaga,
+  signupUserWorkerSaga,
+  loginUserWorkerSaga,
   LOGIN_USER,
   SIGNUP_USER,
 } from './auth-reducer';
@@ -20,6 +20,6 @@ export const store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootWatcher);
 
 function* rootWatcher() {
-  yield takeEvery(LOGIN_USER, logInUserWorkerSaga);
-  yield takeEvery(SIGNUP_USER, signUpUserWorkerSaga);
+  yield takeEvery(SIGNUP_USER, signupUserWorkerSaga);
+  yield takeEvery(LOGIN_USER, loginUserWorkerSaga);
 }

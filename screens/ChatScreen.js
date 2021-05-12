@@ -19,6 +19,11 @@ const ChatScreen = () => {
     <ActivityIndicator animating={true} color={Colors.primary} />
   );
 
+  const getItemLayout = (data, index) => ({
+    length: 50,
+    offset: 200 * index,
+    index,
+  });
   const scrollToIndex = useCallback(() => {
     flatRef.current.scrollToIndex({
       animated: true,
@@ -63,6 +68,8 @@ const ChatScreen = () => {
     <View style={styles.container}>
       <FlatList
         initialScrollIndex={messageFromFirebase.length - 1}
+        initialNumToRender={3}
+        getItemLayout={getItemLayout}
         ref={flatRef}
         data={messageFromFirebase}
         renderItem={dataItem => (
