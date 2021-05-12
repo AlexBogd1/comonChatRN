@@ -4,52 +4,25 @@ import {Card, Title} from 'react-native-paper';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
 import HelperTextInput from '../components/HelperTextInput';
-import firebase from 'firebase';
 import {ChatErrors} from '../constants/Errors';
-import {useDispatch} from 'react-redux';
-import {logInUser} from '../state/auth-reducer';
+import {useDispatch, useSelector} from 'react-redux';
+import {logInUser, setLoginError} from '../state/auth-reducer';
 
 const LoginScreen = ({navigation}) => {
-  const initError = {};
-  for (let key in ChatErrors.login) {
-    initError[ChatErrors.login[key]] = '';
-  }
+  const {isLoggedIn, loginError} = useSelector(state => state.auth);
+  console.log(isLoggedIn);
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [currentError, setCurrentError] = useState(initError);
   const dispatch = useDispatch();
-  
+
   const loginUser = useCallback(() => {
-    
-    if (userName.trim().length >= 3) {
-      console.log('LoginScreen')
-      dispatch(logInUser(email, password, userName));
-      // firebase
-      //   .auth()
-      //   .createUserWithEmailAndPassword(email, password)
-      //   .then(userCredential => {
-      //     const user = userCredential.user;
-      //     user.updateProfile({
-      //       displayName: userName,
-      //     });
-      //     navigation.navigate('Chat');
-      //   })
-      //   .catch(error => {
-      //     const errorCode = error.code;
-      //     const errorMessage = error.message;
-      //     setCurrentError({
-      //       ...currentError,
-      //       [errorCode]: errorMessage,
-      //     });
-      //   });
-    } else {
-      setCurrentError({
-        ...currentError,
-        ['userName-error']: 'The user name must be at least 3 character',
-      });
-    }
-  }, [userName, email, password, currentError, navigation]);
+    dispatch(logInUser(email, password, userName));
+  }, [dispatch, email, password, userName]);
+
+  if (isLoggedIn) {
+    navigation.navigate('Chat');
+  }
 
   return (
     <View>
@@ -64,13 +37,10 @@ const LoginScreen = ({navigation}) => {
             value={userName}
             onChangeText={userName => {
               setUserName(userName);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.login.userNameError]: '',
-              });
+              dispatch(setLoginError(ChatErrors.login.userNameError, ''));
             }}
-            visible={currentError[ChatErrors.login.userNameError]}
-            errorMessage={currentError[ChatErrors.login.userNameError]}
+            visible={loginError[ChatErrors.login.userNameError]}
+            errorMessage={loginError[ChatErrors.login.userNameError]}
           />
           <HelperTextInput
             theme={{colors: {primary: Colors.secondary}}}
@@ -79,20 +49,17 @@ const LoginScreen = ({navigation}) => {
             value={email}
             onChangeText={text => {
               setEmail(text);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.login.emailAlreadyInUse]: '',
-                [ChatErrors.login.invalidEmail]: '',
-              });
+              dispatch(setLoginError(ChatErrors.login.emailAlreadyInUse, ''));
+              dispatch(setLoginError(ChatErrors.login.invalidEmail, ''));
             }}
             visible={
-              currentError[ChatErrors.login.emailAlreadyInUse] ||
-              currentError[ChatErrors.login.invalidEmail]
+              loginError[ChatErrors.login.emailAlreadyInUse] ||
+              loginError[ChatErrors.login.invalidEmail]
             }
             errorMessage={
-              currentError[ChatErrors.login.emailAlreadyInUse]
-                ? currentError[ChatErrors.login.emailAlreadyInUse]
-                : currentError[ChatErrors.login.invalidEmail]
+              loginError[ChatErrors.login.emailAlreadyInUse]
+                ? loginError[ChatErrors.login.emailAlreadyInUse]
+                : loginError[ChatErrors.login.invalidEmail]
             }
           />
           <HelperTextInput
@@ -103,13 +70,10 @@ const LoginScreen = ({navigation}) => {
             value={password}
             onChangeText={password => {
               setPassword(password);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.login.weakPassword]: '',
-              });
+              dispatch(setLoginError(ChatErrors.login.weakPassword, ''));
             }}
-            visible={currentError[ChatErrors.login.weakPassword]}
-            errorMessage={currentError[ChatErrors.login.weakPassword]}
+            visible={loginError[ChatErrors.login.weakPassword]}
+            errorMessage={loginError[ChatErrors.login.weakPassword]}
           />
           <PlatformButton
             style={styles.button}

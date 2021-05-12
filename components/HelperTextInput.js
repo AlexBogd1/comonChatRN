@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {TextInput, HelperText} from 'react-native-paper';
 import {View} from 'react-native';
 

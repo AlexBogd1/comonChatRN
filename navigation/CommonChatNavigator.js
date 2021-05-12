@@ -3,16 +3,18 @@ import {createStackNavigator} from '@react-navigation/stack';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignInScreen from '../screens/SignInScreen';
-import {Platform, StyleSheet} from 'react-native';
+import {Platform} from 'react-native';
 import Colors from '../constants/Colors';
 import ChatScreen from '../screens/ChatScreen';
-import PlatformButton from '../components/PlatformButton';
-import {Button, TextInput} from 'react-native-paper';
+import {Button} from 'react-native-paper';
 import MaterialCommunityIcon from 'react-native-paper/src/components/MaterialCommunityIcon';
+import {useDispatch} from 'react-redux';
+import {setIsLoggedIn} from '../state/auth-reducer';
 
 const Stack = createStackNavigator();
 
 const CommonChatNavigator = () => {
+  const dispatch = useDispatch();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -48,7 +50,10 @@ const CommonChatNavigator = () => {
               icon={() => (
                 <MaterialCommunityIcon name={'arrow-left'} size={30} />
               )}
-              onPress={() => navigation.navigate('Welcome')}
+              onPress={() => {
+                dispatch(setIsLoggedIn(false));
+                navigation.navigate('Welcome');
+              }}
             />
           ),
         })}
