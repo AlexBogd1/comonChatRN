@@ -10,7 +10,6 @@ import {logInUser, setLoginError} from '../state/auth-reducer';
 
 const LoginScreen = ({navigation}) => {
   const {isLoggedIn, loginError} = useSelector(state => state.auth);
-  console.log(isLoggedIn);
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

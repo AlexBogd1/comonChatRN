@@ -54,10 +54,12 @@ const styles = StyleSheet.create({
     width: '97%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 5,
+    marginLeft: 8,
   },
   avatarBlock: {
     marginRight: 5,
+    marginBottom: 12,
+    alignSelf: 'flex-end',
   },
   message: {
     textAlign: 'center',

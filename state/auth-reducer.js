@@ -5,18 +5,26 @@ import firebase from 'firebase';
 // actions
 const SET_IS_LOGGED_IN = 'SET_IS_LOGGED_IN';
 const SET_LOGIN_ERROR = 'SET_LOGIN_ERROR';
+const SET_SIGNUP_ERROR = 'SET_SIGNUP_ERROR';
 
 // saga actions
 export const LOGIN_USER = 'LOGIN_USER';
+export const SIGNUP_USER = 'SIGNUP_USER';
 
-const initError = {};
+const initLoginError = {};
 for (let key in ChatErrors.login) {
-  initError[ChatErrors.login[key]] = '';
+  initLoginError[ChatErrors.login[key]] = '';
+}
+
+const initSignupError = {};
+for (let key in ChatErrors.signIn) {
+  initSignupError[ChatErrors.signIn[key]] = '';
 }
 
 const initialState = {
   isLoggedIn: false,
-  loginError: initError,
+  loginError: initLoginError,
+  signupError: initSignupError,
 };
 
 export const authReducer = (state = initialState, action) => {
@@ -28,7 +36,15 @@ export const authReducer = (state = initialState, action) => {
         ...state,
         loginError: {
           ...state.loginError,
-          [action.payload.errorCode]: [action.payload.errorMessage],
+          [action.payload.errorCode]: action.payload.errorMessage,
+        },
+      };
+    case SET_SIGNUP_ERROR:
+      return {
+        ...state,
+        signupError: {
+          ...state.signupError,
+          [action.payload.errorCode]: action.payload.errorMessage,
         },
       };
     default:
@@ -52,6 +68,14 @@ export const setLoginError = (errorCode, errorMessage) => ({
   },
 });
 
+export const setSignupError = (errorCode, errorMessage) => ({
+  type: SET_SIGNUP_ERROR,
+  payload: {
+    errorCode,
+    errorMessage,
+  },
+});
+
 //saga action
 export const logInUser = (email, password, userName) => ({
   type: LOGIN_USER,
@@ -61,20 +85,30 @@ export const logInUser = (email, password, userName) => ({
     userName,
   },
 });
+
+export const signUpUser = (email, password, confirmedPassword) => ({
+  type: SIGNUP_USER,
+  payload: {
+    email,
+    password,
+    confirmedPassword,
+  },
+});
+
 // saga
 export function* logInUserWorkerSaga(action) {
+  const {userName, email, password} = action.payload;
   try {
-    if (action.payload.userName.trim().length >= 3) {
+    if (userName.trim().length >= 3) {
       const auth = firebase.auth();
       const {user} = yield call(
         [auth, auth.createUserWithEmailAndPassword],
-        action.payload.email,
-        action.payload.password,
+        email,
+        password,
       );
-      const b = yield user.updateProfile({
-        displayName: action.payload.userName,
+      yield user.updateProfile({
+        displayName: userName,
       });
-      console.log(b);
       yield put(setIsLoggedIn(true));
     } else {
       yield put(
@@ -86,5 +120,25 @@ export function* logInUserWorkerSaga(action) {
     }
   } catch (error) {
     yield put(setLoginError(error.code, error.message));
+  }
+}
+
+export function* signUpUserWorkerSaga(action) {
+  const {email, password, confirmedPassword} = action.payload;
+  if (password === confirmedPassword) {
+    try {
+      const auth = firebase.auth();
+      yield call([auth, auth.signInWithEmailAndPassword], email, password);
+      yield put(setIsLoggedIn(true));
+    } catch (error) {
+      yield put(setSignupError(error.code, error.message));
+    }
+  } else {
+    yield put(
+      setSignupError(
+        ChatErrors.signIn.wrongConfirmation,
+        'Confirmation password not match',
+      ),
+    );
   }
 }

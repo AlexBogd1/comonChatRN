@@ -1,21 +1,20 @@
 import React, {useState, useCallback} from 'react';
-import {View, Text, StyleSheet, Platform} from 'react-native';
+import {View, StyleSheet, Platform} from 'react-native';
 import {Card, TextInput, Title} from 'react-native-paper';
 import HelperTextInput from '../components/HelperTextInput';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
-import firebase from 'firebase';
 import {ChatErrors} from '../constants/Errors';
+import {useSelector, useDispatch} from 'react-redux';
+import {signUpUser, setSignupError} from '../state/auth-reducer';
 
 const SignInScreen = ({navigation}) => {
-  const initError = {};
-  for (let key in ChatErrors.login) {
-    initError[ChatErrors.login[key]] = '';
-  }
+  const {isLoggedIn, signupError} = useSelector(state => state.auth);
+  const dispatch = useDispatch();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confPassword, setConfPassword] = useState('');
-  const [currentError, setCurrentError] = useState(initError);
   const [secureTextEntry, setSecureTextEntry] = useState(true);
 
   const buttonIcon = (
@@ -26,29 +25,12 @@ const SignInScreen = ({navigation}) => {
   );
 
   const signInUser = useCallback(() => {
-    if (password === confPassword) {
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          navigation.navigate('Chat');
-        })
-        .catch(error => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setCurrentError({
-            ...currentError,
-            [errorCode]: errorMessage,
-          });
-        });
-    } else {
-      setCurrentError({
-        ...currentError,
-        [ChatErrors.signIn.wrongConfirmation]:
-          'Confirmation password not match',
-      });
-    }
-  }, [password, confPassword, email, navigation, currentError]);
+    dispatch(signUpUser(email, password, confPassword));
+  }, [dispatch, password, confPassword, email]);
+
+  if (isLoggedIn) {
+    navigation.navigate('Chat');
+  }
 
   return (
     <View>
@@ -62,24 +44,21 @@ const SignInScreen = ({navigation}) => {
             value={email}
             onChangeText={text => {
               setEmail(text);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.signIn.userDisabled]: '',
-                [ChatErrors.signIn.invalidEmail]: '',
-                [ChatErrors.signIn.userNotFound]: '',
-              });
+              dispatch(setSignupError(ChatErrors.signIn.userDisabled, ''));
+              dispatch(setSignupError(ChatErrors.signIn.invalidEmail, ''));
+              dispatch(setSignupError(ChatErrors.signIn.userNotFound, ''));
             }}
             visible={
-              currentError[ChatErrors.signIn.userDisabled] ||
-              currentError[ChatErrors.signIn.invalidEmail] ||
-              currentError[ChatErrors.signIn.userNotFound]
+              signupError[ChatErrors.signIn.userDisabled] ||
+              signupError[ChatErrors.signIn.invalidEmail] ||
+              signupError[ChatErrors.signIn.userNotFound]
             }
             errorMessage={
-              currentError[ChatErrors.signIn.userDisabled]
-                ? currentError[ChatErrors.signIn.userDisabled]
-                : currentError[ChatErrors.signIn.invalidEmail]
-                ? currentError[ChatErrors.signIn.invalidEmail]
-                : currentError[ChatErrors.signIn.userNotFound]
+              signupError[ChatErrors.signIn.userDisabled]
+                ? signupError[ChatErrors.signIn.userDisabled]
+                : signupError[ChatErrors.signIn.invalidEmail]
+                ? signupError[ChatErrors.signIn.invalidEmail]
+                : signupError[ChatErrors.signIn.userNotFound]
             }
           />
           <HelperTextInput
@@ -90,13 +69,10 @@ const SignInScreen = ({navigation}) => {
             value={password}
             onChangeText={password => {
               setPassword(password);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.signIn.wrongPassword]: '',
-              });
+              dispatch(setSignupError(ChatErrors.signIn.wrongPassword, ''));
             }}
-            visible={currentError[ChatErrors.signIn.wrongPassword]}
-            errorMessage={currentError[ChatErrors.signIn.wrongPassword]}
+            visible={signupError[ChatErrors.signIn.wrongPassword]}
+            errorMessage={signupError[ChatErrors.signIn.wrongPassword]}
           />
           <HelperTextInput
             theme={{colors: {primary: Colors.secondary}}}
@@ -107,13 +83,10 @@ const SignInScreen = ({navigation}) => {
             right={buttonIcon}
             onChangeText={password => {
               setConfPassword(password);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.signIn.wrongConfirmation]: '',
-              });
+              dispatch(setSignupError(ChatErrors.signIn.wrongConfirmation, ''));
             }}
-            visible={currentError[ChatErrors.signIn.wrongConfirmation]}
-            errorMessage={currentError[ChatErrors.signIn.wrongConfirmation]}
+            visible={signupError[ChatErrors.signIn.wrongConfirmation]}
+            errorMessage={signupError[ChatErrors.signIn.wrongConfirmation]}
             icon={buttonIcon}
           />
           <PlatformButton
