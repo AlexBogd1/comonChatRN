@@ -22,7 +22,7 @@ for (let key in ChatErrors.signIn) {
 }
 
 const initialState = {
-  isLoggedIn: true,
+  isLoggedIn: false,
   loginError: initLoginError,
   signupError: initSignupError,
 };
@@ -76,7 +76,7 @@ export const setSignupError = (errorCode, errorMessage) => ({
   },
 });
 
-//saga action
+//saga action creators
 export const signUpUser = (email, password, userName) => ({
   type: SIGNUP_USER,
   payload: {

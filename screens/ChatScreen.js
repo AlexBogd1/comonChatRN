@@ -1,5 +1,5 @@
-import React, {useCallback, useState, useRef} from 'react';
-import {View, Text, FlatList, StyleSheet, TextInput} from 'react-native';
+import React, {useCallback, useState, useRef, useEffect} from 'react';
+import {View, FlatList, StyleSheet, TextInput} from 'react-native';
 import {ActivityIndicator, IconButton} from 'react-native-paper';
 import {firestore, auth} from '../App';
 import firebase from 'firebase';
@@ -7,17 +7,23 @@ import Message from '../components/Message';
 import {useAuthState} from 'react-firebase-hooks/auth';
 import {useCollectionData} from 'react-firebase-hooks/firestore';
 import Colors from '../constants/Colors';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  getMessagesFromFirebase,
+  sendNewMessage,
+  removeMessage,
+} from '../state/message-reducer';
 
 const ChatScreen = () => {
+  const messages = useSelector(store => store.messages.messages);
+  const dispatch = useDispatch();
   const [user] = useAuthState(auth);
   const [message, setMessage] = useState('');
-  const [messageFromFirebase, loading] = useCollectionData(
-    firestore.collection('messages').orderBy('time'),
-  );
   const flatRef = useRef();
-  const indicator = (
-    <ActivityIndicator animating={true} color={Colors.primary} />
-  );
+
+  useEffect(() => {
+    dispatch(getMessagesFromFirebase());
+  }, [dispatch]);
 
   const getItemLayout = (data, index) => ({
     length: 50,
@@ -27,51 +33,36 @@ const ChatScreen = () => {
   const scrollToIndex = useCallback(() => {
     flatRef.current.scrollToIndex({
       animated: true,
-      index: messageFromFirebase.length - 1,
+      index: messages.length - 1,
     });
-  }, [messageFromFirebase, flatRef]);
+  }, [messages, flatRef]);
 
   const sendMessage = useCallback(
     (userId, userName, message) => {
-      const messageTimeMark = new Date().getTime().toString();
-      const newMessage = {
-        id: messageTimeMark,
-        UID: userId,
-        userName: userName,
-        text: message,
-        time: firebase.firestore.FieldValue.serverTimestamp(),
-      };
-
-      firestore
-        .collection('messages')
-        .doc(messageTimeMark)
-        .set(newMessage)
-        .then(res => setMessage(''));
-      scrollToIndex();
+      dispatch(sendNewMessage(userId, userName, message));
+      setMessage('');
+      if (messages.length > 0) {
+        scrollToIndex();
+      }
     },
-    [setMessage, scrollToIndex],
+    [dispatch, messages.length, scrollToIndex],
   );
 
-  const removeMessage = useCallback(messageId => {
-    firestore
-      .collection('messages')
-      .doc(messageId)
-      .delete()
-      .catch(error => {
-        console.error('Error removing document: ', error);
-      });
-  }, []);
+  const deleteMessage = useCallback(
+    messageId => {
+      dispatch(removeMessage(messageId));
+    },
+    [dispatch],
+  );
 
-  return loading ? (
-    indicator
-  ) : (
+  return (
     <View style={styles.container}>
       <FlatList
-        initialScrollIndex={messageFromFirebase.length - 1}
+        initialScrollIndex={messages.length > 0 ? messages.length - 1 : 0}
         initialNumToRender={3}
         getItemLayout={getItemLayout}
         ref={flatRef}
-        data={messageFromFirebase}
+        data={messages}
         renderItem={dataItem => (
           <Message
             id={dataItem.item.id}
@@ -79,7 +70,7 @@ const ChatScreen = () => {
             userName={dataItem.item.userName}
             isOwner={dataItem.item.UID === user.uid}
             time={dataItem.item.time}
-            removeMessage={removeMessage}
+            removeMessage={deleteMessage}
           />
         )}
         keyExtractor={item => item.time}

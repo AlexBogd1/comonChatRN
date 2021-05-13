@@ -8,7 +8,7 @@ const Message = ({id, text, userName, isOwner, time, removeMessage}) => {
     .split(' ')
     .map(str => str[0])
     .join('');
-  const mesDate = time ? new Date((time.seconds + 10800) * 1000) : new Date();
+  const mesDate = new Date(+time);
 
   return (
     <View

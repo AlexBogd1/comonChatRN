@@ -51,7 +51,7 @@ const CommonChatNavigator = () => {
                 <MaterialCommunityIcon name={'arrow-left'} size={30} />
               )}
               onPress={() => {
-                dispatch(setIsLoggedIn(true));
+                dispatch(setIsLoggedIn(false));
                 navigation.navigate('Welcome');
               }}
             />
