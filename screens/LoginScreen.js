@@ -11,22 +11,12 @@ import {logInUser, setLoginError} from '../state/auth/auth-actions';
 const LoginScreen = ({navigation}) => {
   const {isLoggedIn, loginError} = useSelector(store => store.auth);
   const dispatch = useDispatch();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confPassword, setConfPassword] = useState('');
-  const [secureTextEntry, setSecureTextEntry] = useState(true);
-
-  const buttonIcon = (
-    <TextInput.Icon
-      name={'eye'}
-      onPress={() => setSecureTextEntry(!secureTextEntry)}
-    />
-  );
 
   const signInUser = useCallback(() => {
-    dispatch(logInUser(email, password, confPassword));
-  }, [dispatch, password, confPassword, email]);
+    dispatch(logInUser(email, password));
+  }, [dispatch, password, email]);
 
   if (isLoggedIn) {
     navigation.navigate('Chat');
@@ -65,7 +55,6 @@ const LoginScreen = ({navigation}) => {
             theme={{colors: {primary: Colors.secondary}}}
             selectionColor={Colors.secondary}
             label={'Password'}
-            secureTextEntry={secureTextEntry}
             value={password}
             onChangeText={password => {
               setPassword(password);
@@ -73,21 +62,6 @@ const LoginScreen = ({navigation}) => {
             }}
             visible={loginError[ChatErrors.login.wrongPassword]}
             errorMessage={loginError[ChatErrors.login.wrongPassword]}
-          />
-          <HelperTextInput
-            theme={{colors: {primary: Colors.secondary}}}
-            selectionColor={Colors.secondary}
-            label={'Confirm Password'}
-            secureTextEntry={secureTextEntry}
-            value={confPassword}
-            right={buttonIcon}
-            onChangeText={password => {
-              setConfPassword(password);
-              dispatch(setLoginError(ChatErrors.login.wrongConfirmation, ''));
-            }}
-            visible={loginError[ChatErrors.login.wrongConfirmation]}
-            errorMessage={loginError[ChatErrors.login.wrongConfirmation]}
-            icon={buttonIcon}
           />
           <PlatformButton
             style={styles.button}

@@ -1,12 +1,6 @@
 import {call, put} from 'redux-saga/effects';
 import {ChatErrors} from '../../constants/Errors';
-import {
-  AUTH_ACTIONS,
-  setIsLoggedIn,
-  setLoginError,
-  setSignupError,
-} from './auth-actions';
-import firebase from 'firebase';
+import {AUTH_ACTIONS} from './auth-actions';
 
 const initLoginError = {};
 for (let key in ChatErrors.login) {

@@ -1,6 +1,12 @@
 import React, {useState, useCallback} from 'react';
-import {View, StyleSheet, Platform} from 'react-native';
-import {Card, Title} from 'react-native-paper';
+import {
+  View,
+  StyleSheet,
+  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
+} from 'react-native';
+import {Card, TextInput, Title} from 'react-native-paper';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
 import HelperTextInput from '../components/HelperTextInput';
@@ -13,11 +19,20 @@ const SignupScreen = ({navigation}) => {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confPassword, setConfPassword] = useState('');
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
   const dispatch = useDispatch();
 
   const loginUser = useCallback(() => {
-    dispatch(signUpUser(email, password, userName));
-  }, [dispatch, email, password, userName]);
+    dispatch(signUpUser(email, password, userName, confPassword));
+  }, [confPassword, dispatch, email, password, userName]);
+
+  const buttonIcon = (
+    <TextInput.Icon
+      name={'eye'}
+      onPress={() => setSecureTextEntry(!secureTextEntry)}
+    />
+  );
 
   if (isLoggedIn) {
     navigation.navigate('Chat');
@@ -27,60 +42,85 @@ const SignupScreen = ({navigation}) => {
     <View>
       <Card>
         <Card.Content style={{justifyContent: 'center'}}>
-          <Title>Type Your Data Below</Title>
-          <HelperTextInput
-            style={{marginTop: 25}}
-            theme={{colors: {primary: Colors.secondary}}}
-            selectionColor={Colors.secondary}
-            label={'User Name'}
-            value={userName}
-            onChangeText={userName => {
-              setUserName(userName);
-              dispatch(setSignupError(ChatErrors.signIn.userNameError, ''));
-            }}
-            visible={signupError[ChatErrors.signIn.userNameError]}
-            errorMessage={signupError[ChatErrors.signIn.userNameError]}
-          />
-          <HelperTextInput
-            theme={{colors: {primary: Colors.secondary}}}
-            selectionColor={Colors.secondary}
-            label={'Email'}
-            value={email}
-            onChangeText={text => {
-              setEmail(text);
-              dispatch(setSignupError(ChatErrors.signIn.emailAlreadyInUse, ''));
-              dispatch(setSignupError(ChatErrors.signIn.invalidEmail, ''));
-            }}
-            visible={
-              signupError[ChatErrors.signIn.emailAlreadyInUse] ||
-              signupError[ChatErrors.signIn.invalidEmail]
-            }
-            errorMessage={
-              signupError[ChatErrors.signIn.emailAlreadyInUse]
-                ? signupError[ChatErrors.signIn.emailAlreadyInUse]
-                : signupError[ChatErrors.signIn.invalidEmail]
-            }
-          />
-          <HelperTextInput
-            theme={{colors: {primary: Colors.secondary}}}
-            selectionColor={Colors.secondary}
-            label={'Password'}
-            secureTextEntry={true}
-            value={password}
-            onChangeText={password => {
-              setPassword(password);
-              dispatch(setSignupError(ChatErrors.signIn.weakPassword, ''));
-            }}
-            visible={signupError[ChatErrors.signIn.weakPassword]}
-            errorMessage={signupError[ChatErrors.signIn.weakPassword]}
-          />
-          <PlatformButton
-            style={styles.button}
-            color={Colors.secondary}
-            platform={Platform.OS}
-            text={'Signup'}
-            onPress={loginUser}
-          />
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}>
+            <Title>Type Your Data Below</Title>
+            <ScrollView>
+              <HelperTextInput
+                style={{marginTop: 25}}
+                theme={{colors: {primary: Colors.secondary}}}
+                selectionColor={Colors.secondary}
+                label={'User Name'}
+                value={userName}
+                onChangeText={userName => {
+                  setUserName(userName);
+                  dispatch(setSignupError(ChatErrors.signIn.userNameError, ''));
+                }}
+                visible={signupError[ChatErrors.signIn.userNameError]}
+                errorMessage={signupError[ChatErrors.signIn.userNameError]}
+              />
+              <HelperTextInput
+                theme={{colors: {primary: Colors.secondary}}}
+                selectionColor={Colors.secondary}
+                label={'Email'}
+                value={email}
+                onChangeText={text => {
+                  setEmail(text);
+                  dispatch(
+                    setSignupError(ChatErrors.signIn.emailAlreadyInUse, ''),
+                  );
+                  dispatch(setSignupError(ChatErrors.signIn.invalidEmail, ''));
+                }}
+                visible={
+                  signupError[ChatErrors.signIn.emailAlreadyInUse] ||
+                  signupError[ChatErrors.signIn.invalidEmail]
+                }
+                errorMessage={
+                  signupError[ChatErrors.signIn.emailAlreadyInUse]
+                    ? signupError[ChatErrors.signIn.emailAlreadyInUse]
+                    : signupError[ChatErrors.signIn.invalidEmail]
+                }
+              />
+              <HelperTextInput
+                theme={{colors: {primary: Colors.secondary}}}
+                selectionColor={Colors.secondary}
+                label={'Password'}
+                secureTextEntry={secureTextEntry}
+                value={password}
+                onChangeText={password => {
+                  setPassword(password);
+                  dispatch(setSignupError(ChatErrors.signIn.weakPassword, ''));
+                }}
+                visible={signupError[ChatErrors.signIn.weakPassword]}
+                errorMessage={signupError[ChatErrors.signIn.weakPassword]}
+              />
+              <HelperTextInput
+                theme={{colors: {primary: Colors.secondary}}}
+                selectionColor={Colors.secondary}
+                label={'Confirm Password'}
+                secureTextEntry={secureTextEntry}
+                value={confPassword}
+                right={buttonIcon}
+                onChangeText={password => {
+                  setConfPassword(password);
+                  dispatch(
+                    setSignupError(ChatErrors.signIn.wrongConfirmation, ''),
+                  );
+                }}
+                visible={signupError[ChatErrors.signIn.wrongConfirmation]}
+                errorMessage={signupError[ChatErrors.signIn.wrongConfirmation]}
+                icon={buttonIcon}
+              />
+            </ScrollView>
+            <PlatformButton
+              style={styles.button}
+              color={Colors.secondary}
+              platform={Platform.OS}
+              text={'Signup'}
+              onPress={loginUser}
+            />
+          </KeyboardAvoidingView>
         </Card.Content>
       </Card>
     </View>

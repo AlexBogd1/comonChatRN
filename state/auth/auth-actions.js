@@ -35,20 +35,20 @@ export const setSignupError = (errorCode, errorMessage) => ({
 });
 
 //saga action creators
-export const signUpUser = (email, password, userName) => ({
+export const signUpUser = (email, password, userName, confirmPassword) => ({
   type: AUTH_ACTIONS.SAGA_ACTIONS.SIGNUP_USER,
   payload: {
     email,
     password,
     userName,
+    confirmPassword,
   },
 });
 
-export const logInUser = (email, password, confirmedPassword) => ({
+export const logInUser = (email, password) => ({
   type: AUTH_ACTIONS.SAGA_ACTIONS.LOGIN_USER,
   payload: {
     email,
     password,
-    confirmedPassword,
   },
 });

@@ -7,7 +7,7 @@ import ChatScreen from '../screens/ChatScreen';
 import {Button} from 'react-native-paper';
 import MaterialCommunityIcon from 'react-native-paper/src/components/MaterialCommunityIcon';
 import {useDispatch} from 'react-redux';
-import {setIsLoggedIn} from '../state/auth/auth-reducer';
+import {setIsLoggedIn} from '../state/auth/auth-actions';
 import SignupScreen from '../screens/SignupScreen';
 import LoginScreen from '../screens/LoginScreen';
 
