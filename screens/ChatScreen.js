@@ -1,18 +1,16 @@
 import React, {useCallback, useState, useRef, useEffect} from 'react';
 import {View, FlatList, StyleSheet, TextInput} from 'react-native';
-import {ActivityIndicator, IconButton} from 'react-native-paper';
-import {firestore, auth} from '../App';
-import firebase from 'firebase';
+import {IconButton} from 'react-native-paper';
+import {auth} from '../App';
 import Message from '../components/Message';
 import {useAuthState} from 'react-firebase-hooks/auth';
-import {useCollectionData} from 'react-firebase-hooks/firestore';
 import Colors from '../constants/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   getMessagesFromFirebase,
   sendNewMessage,
   removeMessage,
-} from '../state/message-reducer';
+} from '../state/message/message-actions';
 
 const ChatScreen = () => {
   const messages = useSelector(store => store.messages.messages);

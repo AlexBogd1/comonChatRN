@@ -27,7 +27,6 @@ if (!firebase.apps.length) {
 }
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
-console.ignoredYellowBox = ['Setting a timer'];
 
 const App = () => {
   return (

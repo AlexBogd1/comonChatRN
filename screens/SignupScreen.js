@@ -6,7 +6,7 @@ import PlatformButton from '../components/PlatformButton';
 import HelperTextInput from '../components/HelperTextInput';
 import {ChatErrors} from '../constants/Errors';
 import {useDispatch, useSelector} from 'react-redux';
-import {signUpUser, setSignupError} from '../state/auth-reducer';
+import {signUpUser, setSignupError} from '../state/auth/auth-actions';
 
 const SignupScreen = ({navigation}) => {
   const {isLoggedIn, signupError} = useSelector(state => state.auth);

@@ -6,7 +6,7 @@ import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
 import {ChatErrors} from '../constants/Errors';
 import {useSelector, useDispatch} from 'react-redux';
-import {logInUser, setLoginError} from '../state/auth-reducer';
+import {logInUser, setLoginError} from '../state/auth/auth-actions';
 
 const LoginScreen = ({navigation}) => {
   const {isLoggedIn, loginError} = useSelector(store => store.auth);

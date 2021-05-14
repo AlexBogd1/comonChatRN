@@ -1,22 +1,16 @@
 import {combineReducers, createStore, applyMiddleware} from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import {takeEvery} from 'redux-saga/effects';
+import {messageReducer} from './message/message-reducer';
+import {authReducer} from './auth/auth-reducer';
+import {AUTH_ACTIONS} from './auth/auth-actions';
+import {MESSAGE_ACTIONS} from './message/message-actions';
 import {
-  messageReducer,
-  SEND_MESSAGE,
-  GET_MESSAGES_FROM_FIREBASE,
-  REMOVE_MESSAGE_FROM_FIREBASE,
   getMessagesWorkerSaga,
   removeMessageWorkerSaga,
   sendMessageWorkerSaga,
-} from './message-reducer';
-import {
-  authReducer,
-  signupUserWorkerSaga,
-  loginUserWorkerSaga,
-  LOGIN_USER,
-  SIGNUP_USER,
-} from './auth-reducer';
+} from './message/message-sagas';
+import {loginUserWorkerSaga, signupUserWorkerSaga} from './auth/auth-sagas';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -30,9 +24,18 @@ export const store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootWatcher);
 
 function* rootWatcher() {
-  yield takeEvery(SIGNUP_USER, signupUserWorkerSaga);
-  yield takeEvery(LOGIN_USER, loginUserWorkerSaga);
-  yield takeEvery(SEND_MESSAGE, sendMessageWorkerSaga);
-  yield takeEvery(GET_MESSAGES_FROM_FIREBASE, getMessagesWorkerSaga);
-  yield takeEvery(REMOVE_MESSAGE_FROM_FIREBASE, removeMessageWorkerSaga);
+  yield takeEvery(AUTH_ACTIONS.SAGA_ACTIONS.SIGNUP_USER, signupUserWorkerSaga);
+  yield takeEvery(AUTH_ACTIONS.SAGA_ACTIONS.LOGIN_USER, loginUserWorkerSaga);
+  yield takeEvery(
+    MESSAGE_ACTIONS.SAGA_ACTIONS.SEND_MESSAGE,
+    sendMessageWorkerSaga,
+  );
+  yield takeEvery(
+    MESSAGE_ACTIONS.SAGA_ACTIONS.GET_MESSAGES_FROM_FIREBASE,
+    getMessagesWorkerSaga,
+  );
+  yield takeEvery(
+    MESSAGE_ACTIONS.SAGA_ACTIONS.REMOVE_MESSAGE_FROM_FIREBASE,
+    removeMessageWorkerSaga,
+  );
 }
