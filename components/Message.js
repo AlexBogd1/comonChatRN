@@ -8,25 +8,20 @@ const Message = ({id, text, userName, isOwner, time, removeMessage}) => {
     .split(' ')
     .map(str => str[0])
     .join('');
-  const mesDate = new Date(+time);
-
+  const mesDate = new Date(time);
+  const ownerContainerStyles = isOwner
+    ? {...styles.messageContainer, justifyContent: 'flex-end'}
+    : styles.messageContainer;
+  const ownerMessageStyles = isOwner
+    ? {...styles.message, backgroundColor: messageOwnerBackColor}
+    : styles.message;
   return (
-    <View
-      style={
-        isOwner
-          ? {...styles.messageContainer, justifyContent: 'flex-end'}
-          : styles.messageContainer
-      }>
+    <View style={ownerContainerStyles}>
       <View style={styles.avatarBlock}>
         <Avatar.Text label={avatarName} size={30} />
       </View>
-      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-        <View
-          style={
-            isOwner
-              ? {...styles.message, backgroundColor: messageOwnerBackColor}
-              : styles.message
-          }>
+      <View style={styles.messageBlock}>
+        <View style={ownerMessageStyles}>
           <Text>{text}</Text>
           <View style={styles.messageDate}>
             <Text style={styles.messageDateText}>
@@ -55,6 +50,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 8,
+  },
+  messageBlock: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   avatarBlock: {
     marginRight: 5,

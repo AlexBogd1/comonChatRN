@@ -1,15 +1,16 @@
 import React, {useState, useCallback} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import {Card, TextInput, Title} from 'react-native-paper';
+import {Card, Title} from 'react-native-paper';
 import HelperTextInput from '../components/HelperTextInput';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
 import {ChatErrors} from '../constants/Errors';
 import {useSelector, useDispatch} from 'react-redux';
 import {logInUser, setLoginError} from '../state/auth/auth-actions';
+import {loginSelector} from '../state/selectors';
 
 const LoginScreen = ({navigation}) => {
-  const {isLoggedIn, loginError} = useSelector(store => store.auth);
+  const {isLoggedIn, loginError} = useSelector(loginSelector);
   const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +26,7 @@ const LoginScreen = ({navigation}) => {
   return (
     <View>
       <Card>
-        <Card.Content style={{justifyContent: 'center'}}>
+        <Card.Content style={styles.cardContainer}>
           <Title>Type Your Data Below</Title>
           <HelperTextInput
             theme={{colors: {primary: Colors.secondary}}}
@@ -77,6 +78,9 @@ const LoginScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    justifyContent: 'center',
+  },
   button: {
     marginTop: 25,
     borderRadius: 20,

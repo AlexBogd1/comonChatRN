@@ -11,9 +11,10 @@ import {
   sendNewMessage,
   removeMessage,
 } from '../state/message/message-actions';
+import {getMessagesSelector} from '../state/selectors';
 
 const ChatScreen = () => {
-  const messages = useSelector(store => store.messages.messages);
+  const messages = useSelector(getMessagesSelector);
   const dispatch = useDispatch();
   const [user] = useAuthState(auth);
   const [message, setMessage] = useState('');

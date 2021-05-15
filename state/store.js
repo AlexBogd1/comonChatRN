@@ -14,7 +14,7 @@ import {loginUserWorkerSaga, signupUserWorkerSaga} from './auth/auth-sagas';
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  messages: messageReducer,
+  usersMessages: messageReducer,
 });
 
 const sagaMiddleware = createSagaMiddleware();

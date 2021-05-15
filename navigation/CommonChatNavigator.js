@@ -48,7 +48,7 @@ const CommonChatNavigator = () => {
           headerLeft: () => (
             <Button
               icon={() => (
-                <MaterialCommunityIcon name={'arrow-left'} size={30} />
+                <MaterialCommunityIcon name={'arrow-left'} size={25} />
               )}
               onPress={() => {
                 dispatch(setIsLoggedIn(false));

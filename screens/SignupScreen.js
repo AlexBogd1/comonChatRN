@@ -13,9 +13,10 @@ import HelperTextInput from '../components/HelperTextInput';
 import {ChatErrors} from '../constants/Errors';
 import {useDispatch, useSelector} from 'react-redux';
 import {signUpUser, setSignupError} from '../state/auth/auth-actions';
+import {signupSelector} from '../state/selectors';
 
 const SignupScreen = ({navigation}) => {
-  const {isLoggedIn, signupError} = useSelector(state => state.auth);
+  const {isLoggedIn, signupError} = useSelector(signupSelector);
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,20 +42,20 @@ const SignupScreen = ({navigation}) => {
   return (
     <View>
       <Card>
-        <Card.Content style={{justifyContent: 'center'}}>
+        <Card.Content style={styles.cardContainer}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}>
             <Title>Type Your Data Below</Title>
             <ScrollView>
               <HelperTextInput
-                style={{marginTop: 25}}
+                style={styles.textInput}
                 theme={{colors: {primary: Colors.secondary}}}
                 selectionColor={Colors.secondary}
                 label={'User Name'}
                 value={userName}
-                onChangeText={userName => {
-                  setUserName(userName);
+                onChangeText={name => {
+                  setUserName(name);
                   dispatch(setSignupError(ChatErrors.signIn.userNameError, ''));
                 }}
                 visible={signupError[ChatErrors.signIn.userNameError]}
@@ -88,8 +89,8 @@ const SignupScreen = ({navigation}) => {
                 label={'Password'}
                 secureTextEntry={secureTextEntry}
                 value={password}
-                onChangeText={password => {
-                  setPassword(password);
+                onChangeText={pass => {
+                  setPassword(pass);
                   dispatch(setSignupError(ChatErrors.signIn.weakPassword, ''));
                 }}
                 visible={signupError[ChatErrors.signIn.weakPassword]}
@@ -102,8 +103,8 @@ const SignupScreen = ({navigation}) => {
                 secureTextEntry={secureTextEntry}
                 value={confPassword}
                 right={buttonIcon}
-                onChangeText={password => {
-                  setConfPassword(password);
+                onChangeText={pass => {
+                  setConfPassword(pass);
                   dispatch(
                     setSignupError(ChatErrors.signIn.wrongConfirmation, ''),
                   );
@@ -128,6 +129,12 @@ const SignupScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    justifyContent: 'center',
+  },
+  textInput: {
+    marginTop: 25,
+  },
   button: {
     marginTop: 25,
     borderRadius: 20,

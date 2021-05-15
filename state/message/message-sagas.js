@@ -11,7 +11,7 @@ export function* sendMessageWorkerSaga(action) {
     UID: userId,
     userName: userName,
     text: message,
-    time: messageTimeMark,
+    time: +messageTimeMark,
   };
   const doc = firestore.collection('messages').doc(messageTimeMark);
   yield call([doc, doc.set], newMessage);
