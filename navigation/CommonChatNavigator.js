@@ -7,9 +7,14 @@ import ChatScreen from '../screens/ChatScreen';
 import {Button} from 'react-native-paper';
 import MaterialCommunityIcon from 'react-native-paper/src/components/MaterialCommunityIcon';
 import {useDispatch} from 'react-redux';
-import {setIsLoggedIn} from '../state/auth/auth-actions';
+import {
+  setIsLoggedIn,
+  setLoginError,
+  setSignupError,
+} from '../state/auth/auth-actions';
 import SignupScreen from '../screens/SignupScreen';
 import LoginScreen from '../screens/LoginScreen';
+import {ChatErrors} from '../constants/Errors';
 
 const Stack = createStackNavigator();
 
@@ -33,12 +38,48 @@ const CommonChatNavigator = () => {
       <Stack.Screen
         name={'Signup'}
         component={SignupScreen}
-        options={{headerTitle: 'Create Account'}}
+        options={({navigation}) => ({
+          headerTitle: 'Create Account',
+          headerLeft: () => (
+            <Button
+              icon={() => (
+                <MaterialCommunityIcon name={'arrow-left'} size={25} />
+              )}
+              onPress={() => {
+                dispatch(setSignupError(ChatErrors.signIn.userNameError, ''));
+                dispatch(setSignupError(ChatErrors.signIn.invalidEmail, ''));
+                dispatch(setSignupError(ChatErrors.signIn.weakPassword, ''));
+                dispatch(
+                  setSignupError(ChatErrors.signIn.emailAlreadyInUse, ''),
+                );
+                dispatch(
+                  setSignupError(ChatErrors.signIn.wrongConfirmation, ''),
+                );
+                navigation.navigate('Welcome');
+              }}
+            />
+          ),
+        })}
       />
       <Stack.Screen
         name={'Login'}
         component={LoginScreen}
-        options={{headerTitle: 'Login'}}
+        options={({navigation}) => ({
+          headerTitle: 'Login',
+          headerLeft: () => (
+            <Button
+              icon={() => (
+                <MaterialCommunityIcon name={'arrow-left'} size={25} />
+              )}
+              onPress={() => {
+                dispatch(setLoginError(ChatErrors.login.userDisabled, ''));
+                dispatch(setLoginError(ChatErrors.login.invalidEmail, ''));
+                dispatch(setLoginError(ChatErrors.login.userNotFound, ''));
+                navigation.navigate('Welcome');
+              }}
+            />
+          ),
+        })}
       />
       <Stack.Screen
         name={'Chat'}
