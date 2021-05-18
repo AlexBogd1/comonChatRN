@@ -15,7 +15,7 @@ export function* sendMessageWorkerSaga(action) {
   };
   const doc = firestore.collection('messages').doc(messageTimeMark);
   yield call([doc, doc.set], newMessage);
-  yield put(addMessage(newMessage));
+  //yield put(addMessage(newMessage));
 }
 
 export function* removeMessageWorkerSaga(action) {

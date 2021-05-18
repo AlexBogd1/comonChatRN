@@ -1,6 +1,6 @@
 import React, {useCallback, useState, useRef, useEffect} from 'react';
 import {View, FlatList, StyleSheet, TextInput} from 'react-native';
-import {IconButton} from 'react-native-paper';
+import {IconButton, ActivityIndicator} from 'react-native-paper';
 import {auth} from '../App';
 import Message from '../components/Message';
 import {useAuthState} from 'react-firebase-hooks/auth';
@@ -10,25 +10,47 @@ import {
   getMessagesFromFirebase,
   sendNewMessage,
   removeMessage,
+  addMessage,
 } from '../state/message/message-actions';
 import {getMessagesSelector} from '../state/selectors';
+import {firestore} from '../App';
+import {useCollectionData} from 'react-firebase-hooks/firestore';
 
 const ChatScreen = () => {
   const messages = useSelector(getMessagesSelector);
   const dispatch = useDispatch();
   const [user] = useAuthState(auth);
   const [message, setMessage] = useState('');
-  const flatRef = useRef();
+  const [messagesFromFirebase, loading] = useCollectionData(
+    firestore.collection('messages').orderBy('time', 'desc').limit(1),
+    '',
+  );
 
   useEffect(() => {
     dispatch(getMessagesFromFirebase());
   }, [dispatch]);
+
+  const flatRef = useRef();
+
+  if (messagesFromFirebase) {
+    let oldMessage = false;
+    for (let message of messages) {
+      if (message.id === messagesFromFirebase[0].id) {
+        oldMessage = true;
+        dispatch(getMessagesFromFirebase());
+      }
+    }
+    if (!oldMessage) {
+      dispatch(addMessage(messagesFromFirebase[0]));
+    }
+  }
 
   const getItemLayout = (data, index) => ({
     length: 50,
     offset: 200 * index,
     index,
   });
+
   const scrollToIndex = useCallback(() => {
     flatRef.current.scrollToIndex({
       animated: true,
@@ -54,11 +76,15 @@ const ChatScreen = () => {
     [dispatch],
   );
 
+  if (loading) {
+    return <ActivityIndicator animating={true} color={Colors.primary} />;
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
         initialScrollIndex={messages.length > 0 ? messages.length - 1 : 0}
-        initialNumToRender={3}
+        initialNumToRender={1}
         getItemLayout={getItemLayout}
         ref={flatRef}
         data={messages}
