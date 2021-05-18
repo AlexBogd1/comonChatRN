@@ -3,7 +3,6 @@ import {NavigationContainer} from '@react-navigation/native';
 import CommonChatNavigator from './navigation/CommonChatNavigator';
 import firebase from 'firebase';
 import {Provider} from 'react-redux';
-import {store} from './state/store';
 import {
   API_KEY,
   AUTH_DOMAIN,
@@ -12,6 +11,7 @@ import {
   MESSAGE_SENDER_ID,
   APP_ID,
 } from '@env';
+import {store} from './state/store';
 
 // Initialize Firebase
 if (!firebase.apps.length) {

@@ -1,5 +1,10 @@
 import React from 'react';
-import {View, Text, StyleSheet, Platform} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+} from 'react-native';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
 
