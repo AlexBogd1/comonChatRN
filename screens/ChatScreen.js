@@ -1,6 +1,6 @@
 import React, {useCallback, useState, useRef, useEffect} from 'react';
-import {View, FlatList, StyleSheet, TextInput} from 'react-native';
-import {IconButton, ActivityIndicator} from 'react-native-paper';
+import {View, FlatList, StyleSheet, ImageBackground} from 'react-native';
+import {ActivityIndicator} from 'react-native-paper';
 import {auth} from '../App';
 import Message from '../components/Message';
 import {useAuthState} from 'react-firebase-hooks/auth';
@@ -10,11 +10,13 @@ import {
   getMessagesFromFirebase,
   sendNewMessage,
   removeMessage,
-  addMessage,
+  setMessages,
 } from '../state/message/message-actions';
 import {getMessagesSelector} from '../state/selectors';
 import {firestore} from '../App';
 import {useCollectionData} from 'react-firebase-hooks/firestore';
+import InputBox from '../components/InputBox';
+import BackImg from '../assets/images/backImgGray.jpg';
 
 const ChatScreen = () => {
   const messages = useSelector(getMessagesSelector);
@@ -22,8 +24,7 @@ const ChatScreen = () => {
   const [user] = useAuthState(auth);
   const [message, setMessage] = useState('');
   const [messagesFromFirebase, loading] = useCollectionData(
-    firestore.collection('messages').orderBy('time', 'desc').limit(1),
-    '',
+    firestore.collection('messages').orderBy('time'),
   );
 
   useEffect(() => {
@@ -32,17 +33,8 @@ const ChatScreen = () => {
 
   const flatRef = useRef();
 
-  if (messagesFromFirebase) {
-    let oldMessage = false;
-    for (let message of messages) {
-      if (message.id === messagesFromFirebase[0].id) {
-        oldMessage = true;
-        dispatch(getMessagesFromFirebase());
-      }
-    }
-    if (!oldMessage) {
-      dispatch(addMessage(messagesFromFirebase[0]));
-    }
+  if (messagesFromFirebase && messagesFromFirebase.length !== messages.length) {
+    dispatch(setMessages(messagesFromFirebase));
   }
 
   const getItemLayout = (data, index) => ({
@@ -79,50 +71,45 @@ const ChatScreen = () => {
   if (loading) {
     return <ActivityIndicator animating={true} color={Colors.primary} />;
   }
-
   return (
-    <View style={styles.container}>
-      <FlatList
-        initialScrollIndex={messages.length > 0 ? messages.length - 1 : 0}
-        initialNumToRender={1}
-        getItemLayout={getItemLayout}
-        ref={flatRef}
-        data={messages}
-        renderItem={dataItem => (
-          <Message
-            id={dataItem.item.id}
-            text={dataItem.item.text}
-            userName={dataItem.item.userName}
-            isOwner={dataItem.item.UID === user.uid}
-            time={dataItem.item.time}
-            removeMessage={deleteMessage}
-          />
-        )}
-        keyExtractor={item => item.time}
-      />
-      <View style={styles.sendMessageBlock}>
-        <TextInput
-          style={styles.messageInput}
-          selectionColor={Colors.secondary}
-          underlineColor={'transparent'}
-          multiline={true}
-          value={message}
-          onChangeText={message => setMessage(message)}
+    <ImageBackground style={styles.backgroundImage} source={BackImg}>
+      <View style={styles.container}>
+        <FlatList
+          initialScrollIndex={messages.length > 0 ? messages.length - 1 : 0}
+          initialNumToRender={1}
+          onContentSizeChange={scrollToIndex}
+          getItemLayout={getItemLayout}
+          ref={flatRef}
+          data={messages}
+          renderItem={dataItem => (
+            <Message
+              id={dataItem.item.id}
+              text={dataItem.item.text}
+              userName={dataItem.item.userName}
+              isOwner={dataItem.item.UID === user.uid}
+              time={dataItem.item.time}
+              removeMessage={deleteMessage}
+            />
+          )}
+          keyExtractor={item => item.time}
         />
-        <IconButton
-          style={styles.messageButton}
-          icon={'send'}
-          size={35}
-          onPress={() => {
+
+        <InputBox
+          message={message}
+          setMessage={setMessage}
+          action={() => {
             sendMessage(user.uid, user.displayName, message);
           }}
         />
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'space-between',
