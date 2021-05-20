@@ -3,7 +3,7 @@ import {StyleSheet, View, Text} from 'react-native';
 import {Avatar, IconButton} from 'react-native-paper';
 
 const Message = ({id, text, userName, isOwner, time, removeMessage}) => {
-  const messageOwnerBackColor = 'rgba(86, 147, 32, 0.2)';
+  const messageOwnerBackColor = 'rgba(86, 147, 32, 0.8)';
   const avatarName = userName
     .split(' ')
     .map(str => str[0])
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
   message: {
     textAlign: 'center',
-    backgroundColor: 'rgba(216, 182, 86, 0.2)',
+    backgroundColor: 'rgba(216, 182, 86, 0.8)',
     minWidth: '40%',
     maxWidth: 250,
     borderRadius: 10,
