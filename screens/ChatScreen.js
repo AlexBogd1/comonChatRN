@@ -1,5 +1,11 @@
 import React, {useCallback, useState, useRef, useEffect} from 'react';
-import {View, FlatList, StyleSheet, ImageBackground} from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import {ActivityIndicator} from 'react-native-paper';
 import {auth} from '../App';
 import Message from '../components/Message';
@@ -16,7 +22,7 @@ import {getMessagesSelector} from '../state/selectors';
 import {firestore} from '../App';
 import {useCollectionData} from 'react-firebase-hooks/firestore';
 import InputBox from '../components/InputBox';
-import BackImg from '../assets/images/backImgGray.jpg';
+import BackImg from '../assets/images/back1.png';
 
 const ChatScreen = () => {
   const messages = useSelector(getMessagesSelector);
@@ -44,11 +50,8 @@ const ChatScreen = () => {
   });
 
   const scrollToIndex = useCallback(() => {
-    flatRef.current.scrollToIndex({
-      animated: true,
-      index: messages.length - 1,
-    });
-  }, [messages, flatRef]);
+    flatRef.current.scrollToEnd();
+  }, [flatRef]);
 
   const sendMessage = useCallback(
     (userId, userName, message) => {
@@ -68,12 +71,17 @@ const ChatScreen = () => {
     [dispatch],
   );
 
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? 80 : 0;
+
   if (loading) {
     return <ActivityIndicator animating={true} color={Colors.primary} />;
   }
   return (
-    <ImageBackground style={styles.backgroundImage} source={BackImg}>
-      <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      style={{flex: 1}}
+      keyboardVerticalOffset={keyboardVerticalOffset}>
+      <ImageBackground style={styles.backgroundImage} source={BackImg}>
         <FlatList
           initialScrollIndex={messages.length > 0 ? messages.length - 1 : 0}
           initialNumToRender={1}
@@ -93,16 +101,16 @@ const ChatScreen = () => {
           )}
           keyExtractor={item => item.time}
         />
-
         <InputBox
           message={message}
           setMessage={setMessage}
+          scrollList={scrollToIndex}
           action={() => {
             sendMessage(user.uid, user.displayName, message);
           }}
         />
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </KeyboardAvoidingView>
   );
 };
 

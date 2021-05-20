@@ -4,12 +4,16 @@ import {IconButton} from 'react-native-paper';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import MaterialCommunityIcon from 'react-native-paper/src/components/MaterialCommunityIcon';
 
-const InputBox = ({message, setMessage, action}) => {
-  console.log(message[0]);
+const InputBox = ({message, scrollList, setMessage, action}) => {
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
-        <TextInput value={message} onChangeText={setMessage} multiline />
+        <TextInput
+          value={message}
+          onChangeText={setMessage}
+          multiline
+          onFocus={scrollList}
+        />
       </View>
       <View style={styles.buttonContainer}>
         <IconButton icon={'send'} size={30} onPress={action} />
