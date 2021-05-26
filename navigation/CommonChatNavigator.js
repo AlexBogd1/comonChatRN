@@ -88,9 +88,7 @@ const CommonChatNavigator = () => {
           headerTitle: 'Your Chat',
           headerLeft: () => (
             <Button
-              icon={() => (
-                <MaterialCommunityIcon name={'arrow-left'} size={25} />
-              )}
+              icon={() => <MaterialCommunityIcon name={'logout'} size={27} />}
               onPress={() => {
                 dispatch(setIsLoggedIn(false));
                 navigation.navigate('Welcome');
