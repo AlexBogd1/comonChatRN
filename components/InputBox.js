@@ -1,14 +1,13 @@
 import React from 'react';
 import {View, TextInput, StyleSheet} from 'react-native';
 import {IconButton} from 'react-native-paper';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import MaterialCommunityIcon from 'react-native-paper/src/components/MaterialCommunityIcon';
 
 const InputBox = ({message, scrollList, setMessage, action}) => {
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <TextInput
+          style={{fontSize: 17}}
           value={message}
           onChangeText={setMessage}
           multiline

@@ -1,6 +1,6 @@
 import React, {useState, useCallback} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import {Card, Title} from 'react-native-paper';
+import {Card, TextInput, Title} from 'react-native-paper';
 import HelperTextInput from '../components/HelperTextInput';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
@@ -14,6 +14,7 @@ const LoginScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
 
   const signInUser = useCallback(() => {
     dispatch(logInUser(email, password));
@@ -22,6 +23,13 @@ const LoginScreen = ({navigation}) => {
   if (isLoggedIn) {
     navigation.navigate('Chat');
   }
+
+  const buttonIcon = (
+    <TextInput.Icon
+      name={'eye'}
+      onPress={() => setSecureTextEntry(!secureTextEntry)}
+    />
+  );
 
   return (
     <View>
@@ -57,12 +65,15 @@ const LoginScreen = ({navigation}) => {
             selectionColor={Colors.secondary}
             label={'Password'}
             value={password}
+            secureTextEntry={secureTextEntry}
             onChangeText={password => {
               setPassword(password);
               dispatch(setLoginError(ChatErrors.login.wrongPassword, ''));
             }}
             visible={loginError[ChatErrors.login.wrongPassword]}
             errorMessage={loginError[ChatErrors.login.wrongPassword]}
+            right={buttonIcon}
+            icon={buttonIcon}
           />
           <PlatformButton
             style={styles.button}
