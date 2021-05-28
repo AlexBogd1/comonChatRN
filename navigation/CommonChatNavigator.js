@@ -88,12 +88,15 @@ const CommonChatNavigator = () => {
           headerTitle: 'Your Chat',
           headerLeft: () => (
             <Button
-              icon={() => <MaterialCommunityIcon name={'logout'} size={27} />}
+              icon={() => <MaterialCommunityIcon name={'logout'} size={23} />}
+              color={'black'}
+              labelStyle={{fontWeight: 'bold'}}
               onPress={() => {
                 dispatch(setIsLoggedIn(false));
                 navigation.navigate('Welcome');
-              }}
-            />
+              }}>
+              Logout
+            </Button>
           ),
         })}
       />

@@ -49,7 +49,7 @@ const ChatScreen = () => {
     index,
   });
 
-  const scrollToIndex = useCallback(() => {
+  const scrollToLastIndex = useCallback(() => {
     flatRef.current.scrollToEnd();
   }, [flatRef]);
 
@@ -58,10 +58,10 @@ const ChatScreen = () => {
       dispatch(sendNewMessage(userId, userName, message));
       setMessage('');
       if (messages.length > 0) {
-        scrollToIndex();
+        scrollToLastIndex();
       }
     },
-    [dispatch, messages.length, scrollToIndex],
+    [dispatch, messages.length, scrollToLastIndex],
   );
 
   const deleteMessage = useCallback(
@@ -85,7 +85,7 @@ const ChatScreen = () => {
         <FlatList
           initialScrollIndex={messages.length > 0 ? messages.length - 1 : 0}
           initialNumToRender={1}
-          onContentSizeChange={scrollToIndex}
+          onContentSizeChange={scrollToLastIndex}
           getItemLayout={getItemLayout}
           ref={flatRef}
           data={messages}
@@ -104,7 +104,7 @@ const ChatScreen = () => {
         <InputBox
           message={message}
           setMessage={setMessage}
-          scrollList={scrollToIndex}
+          scrollList={scrollToLastIndex}
           action={() => {
             sendMessage(user.uid, user.displayName, message);
           }}
