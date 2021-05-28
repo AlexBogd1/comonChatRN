@@ -12,9 +12,9 @@ import {
   setLoginError,
   setSignupError,
 } from '../state/auth/auth-actions';
+import {ChatErrors} from '../constants/Errors';
 import SignupScreen from '../screens/SignupScreen';
 import LoginScreen from '../screens/LoginScreen';
-import {ChatErrors} from '../constants/Errors';
 
 const Stack = createStackNavigator();
 
