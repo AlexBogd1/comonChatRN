@@ -3,30 +3,25 @@ import {StyleSheet, View, Text} from 'react-native';
 import {Avatar, IconButton} from 'react-native-paper';
 
 const Message = ({id, text, userName, isOwner, time, removeMessage}) => {
-  const messageOwnerBackColor = 'rgba(86, 147, 32, 0.2)';
+  const messageOwnerBackColor = 'rgba(86, 147, 32, 0.8)';
   const avatarName = userName
     .split(' ')
     .map(str => str[0])
     .join('');
-  const mesDate = time ? new Date((time.seconds + 10800) * 1000) : new Date();
-
+  const mesDate = new Date(time);
+  const ownerContainerStyles = isOwner
+    ? {...styles.messageContainer, justifyContent: 'flex-end'}
+    : styles.messageContainer;
+  const ownerMessageStyles = isOwner
+    ? {...styles.message, backgroundColor: messageOwnerBackColor}
+    : styles.message;
   return (
-    <View
-      style={
-        isOwner
-          ? {...styles.messageContainer, justifyContent: 'flex-end'}
-          : styles.messageContainer
-      }>
+    <View style={ownerContainerStyles}>
       <View style={styles.avatarBlock}>
         <Avatar.Text label={avatarName} size={30} />
       </View>
-      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-        <View
-          style={
-            isOwner
-              ? {...styles.message, backgroundColor: messageOwnerBackColor}
-              : styles.message
-          }>
+      <View style={styles.messageBlock}>
+        <View style={ownerMessageStyles}>
           <Text>{text}</Text>
           <View style={styles.messageDate}>
             <Text style={styles.messageDateText}>
@@ -54,14 +49,20 @@ const styles = StyleSheet.create({
     width: '97%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 5,
+    marginLeft: 8,
+  },
+  messageBlock: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   avatarBlock: {
     marginRight: 5,
+    marginBottom: 12,
+    alignSelf: 'flex-end',
   },
   message: {
     textAlign: 'center',
-    backgroundColor: 'rgba(216, 182, 86, 0.2)',
+    backgroundColor: 'rgba(216, 182, 86, 0.8)',
     minWidth: '40%',
     maxWidth: 250,
     borderRadius: 10,

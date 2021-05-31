@@ -1,105 +1,123 @@
-import React, {useCallback, useState, useRef} from 'react';
-import {View, Text, FlatList, StyleSheet, TextInput} from 'react-native';
-import {ActivityIndicator, IconButton} from 'react-native-paper';
-import {firestore, auth} from '../App';
-import firebase from 'firebase';
+import React, {useCallback, useState, useRef, useEffect} from 'react';
+import {
+  FlatList,
+  StyleSheet,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import {ActivityIndicator} from 'react-native-paper';
+import {auth} from '../App';
 import Message from '../components/Message';
 import {useAuthState} from 'react-firebase-hooks/auth';
-import {useCollectionData} from 'react-firebase-hooks/firestore';
 import Colors from '../constants/Colors';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  getMessagesFromFirebase,
+  sendNewMessage,
+  removeMessage,
+  setMessages,
+} from '../state/message/message-actions';
+import {getMessagesSelector} from '../state/selectors';
+import {firestore} from '../App';
+import {useCollectionData} from 'react-firebase-hooks/firestore';
+import InputBox from '../components/InputBox';
+import BackImg from '../assets/images/back1.png';
 
 const ChatScreen = () => {
+  const messages = useSelector(getMessagesSelector);
+  const dispatch = useDispatch();
   const [user] = useAuthState(auth);
   const [message, setMessage] = useState('');
-  const [messageFromFirebase, loading] = useCollectionData(
+  const [messagesFromFirebase, loading] = useCollectionData(
     firestore.collection('messages').orderBy('time'),
   );
-  const flatRef = useRef();
-  const indicator = (
-    <ActivityIndicator animating={true} color={Colors.primary} />
-  );
 
-  const scrollToIndex = useCallback(() => {
-    flatRef.current.scrollToIndex({
-      animated: true,
-      index: messageFromFirebase.length - 1,
-    });
-  }, [messageFromFirebase, flatRef]);
+  useEffect(() => {
+    dispatch(getMessagesFromFirebase());
+  }, [dispatch]);
+
+  const flatRef = useRef();
+
+  if (messagesFromFirebase && messagesFromFirebase.length !== messages.length) {
+    dispatch(setMessages(messagesFromFirebase));
+  }
+
+  const getItemLayout = (data, index) => ({
+    length: 50,
+    offset: 200 * index,
+    index,
+  });
+
+  const scrollToLastIndex = useCallback(() => {
+    flatRef.current.scrollToEnd();
+  }, [flatRef]);
 
   const sendMessage = useCallback(
     (userId, userName, message) => {
-      const messageTimeMark = new Date().getTime().toString();
-      const newMessage = {
-        id: messageTimeMark,
-        UID: userId,
-        userName: userName,
-        text: message,
-        time: firebase.firestore.FieldValue.serverTimestamp(),
-      };
-
-      firestore
-        .collection('messages')
-        .doc(messageTimeMark)
-        .set(newMessage)
-        .then(res => setMessage(''));
-      scrollToIndex();
+      dispatch(sendNewMessage(userId, userName, message));
+      setMessage('');
+      if (messages.length > 0) {
+        scrollToLastIndex();
+      }
     },
-    [setMessage, scrollToIndex],
+    [dispatch, messages.length, scrollToLastIndex],
   );
 
-  const removeMessage = useCallback(messageId => {
-    firestore
-      .collection('messages')
-      .doc(messageId)
-      .delete()
-      .catch(error => {
-        console.error('Error removing document: ', error);
-      });
-  }, []);
+  const deleteMessage = useCallback(
+    messageId => {
+      dispatch(removeMessage(messageId));
+    },
+    [dispatch],
+  );
 
-  return loading ? (
-    indicator
-  ) : (
-    <View style={styles.container}>
-      <FlatList
-        initialScrollIndex={messageFromFirebase.length - 1}
-        ref={flatRef}
-        data={messageFromFirebase}
-        renderItem={dataItem => (
-          <Message
-            id={dataItem.item.id}
-            text={dataItem.item.text}
-            userName={dataItem.item.userName}
-            isOwner={dataItem.item.UID === user.uid}
-            time={dataItem.item.time}
-            removeMessage={removeMessage}
-          />
-        )}
-        keyExtractor={item => item.time}
-      />
-      <View style={styles.sendMessageBlock}>
-        <TextInput
-          style={styles.messageInput}
-          selectionColor={Colors.secondary}
-          underlineColor={'transparent'}
-          multiline={true}
-          value={message}
-          onChangeText={message => setMessage(message)}
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? 80 : 0;
+
+  if (loading) {
+    return <ActivityIndicator animating={true} color={Colors.primary} />;
+  }
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      style={{flex: 1}}
+      keyboardVerticalOffset={keyboardVerticalOffset}>
+      <ImageBackground style={styles.backgroundImage} source={BackImg}>
+        <FlatList
+          initialScrollIndex={messages.length > 0 ? messages.length - 1 : 0}
+          initialNumToRender={1}
+          onContentSizeChange={scrollToLastIndex}
+          getItemLayout={getItemLayout}
+          ref={flatRef}
+          data={messages}
+          renderItem={dataItem => (
+            <Message
+              id={dataItem.item.id}
+              text={dataItem.item.text}
+              userName={dataItem.item.userName}
+              isOwner={dataItem.item.UID === user.uid}
+              time={dataItem.item.time}
+              removeMessage={deleteMessage}
+            />
+          )}
+          keyExtractor={item => item.time}
         />
-        <IconButton
-          style={styles.messageButton}
-          icon={'send'}
-          size={35}
-          onPress={() => {
+        <InputBox
+          message={message}
+          setMessage={setMessage}
+          scrollList={scrollToLastIndex}
+          action={() => {
             sendMessage(user.uid, user.displayName, message);
           }}
         />
-      </View>
-    </View>
+      </ImageBackground>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'space-between',

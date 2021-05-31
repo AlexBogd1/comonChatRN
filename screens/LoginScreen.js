@@ -1,71 +1,41 @@
 import React, {useState, useCallback} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import {Card, Title} from 'react-native-paper';
+import {Card, TextInput, Title} from 'react-native-paper';
+import HelperTextInput from '../components/HelperTextInput';
 import Colors from '../constants/Colors';
 import PlatformButton from '../components/PlatformButton';
-import HelperTextInput from '../components/HelperTextInput';
-import firebase from 'firebase';
 import {ChatErrors} from '../constants/Errors';
+import {useSelector, useDispatch} from 'react-redux';
+import {logInUser, setLoginError} from '../state/auth/auth-actions';
+import {loginSelector} from '../state/selectors';
 
 const LoginScreen = ({navigation}) => {
-  const initError = {};
-  for (let key in ChatErrors.login) {
-    initError[ChatErrors.login[key]] = '';
-  }
-  const [userName, setUserName] = useState('');
+  const {isLoggedIn, loginError} = useSelector(loginSelector);
+  const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [currentError, setCurrentError] = useState(initError);
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
 
-  const loginUser = useCallback(() => {
-    if (userName.trim().length >= 3) {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          const user = userCredential.user;
-          user.updateProfile({
-            displayName: userName,
-          });
-          navigation.navigate('Chat');
-        })
-        .catch(error => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setCurrentError({
-            ...currentError,
-            [errorCode]: errorMessage,
-          });
-        });
-    } else {
-      setCurrentError({
-        ...currentError,
-        ['userName-error']: 'The user name must be at least 3 character',
-      });
-    }
-  }, [userName, email, password, currentError, navigation]);
+  const signInUser = useCallback(() => {
+    dispatch(logInUser(email, password));
+  }, [dispatch, password, email]);
+
+  if (isLoggedIn) {
+    navigation.navigate('Chat');
+  }
+
+  const buttonIcon = (
+    <TextInput.Icon
+      name={'eye'}
+      onPress={() => setSecureTextEntry(!secureTextEntry)}
+    />
+  );
 
   return (
     <View>
       <Card>
-        <Card.Content style={{justifyContent: 'center'}}>
+        <Card.Content style={styles.cardContainer}>
           <Title>Type Your Data Below</Title>
-          <HelperTextInput
-            style={{marginTop: 25}}
-            theme={{colors: {primary: Colors.secondary}}}
-            selectionColor={Colors.secondary}
-            label={'User Name'}
-            value={userName}
-            onChangeText={userName => {
-              setUserName(userName);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.login.userNameError]: '',
-              });
-            }}
-            visible={currentError[ChatErrors.login.userNameError]}
-            errorMessage={currentError[ChatErrors.login.userNameError]}
-          />
           <HelperTextInput
             theme={{colors: {primary: Colors.secondary}}}
             selectionColor={Colors.secondary}
@@ -73,44 +43,44 @@ const LoginScreen = ({navigation}) => {
             value={email}
             onChangeText={text => {
               setEmail(text);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.login.emailAlreadyInUse]: '',
-                [ChatErrors.login.invalidEmail]: '',
-              });
+              dispatch(setLoginError(ChatErrors.login.userDisabled, ''));
+              dispatch(setLoginError(ChatErrors.login.invalidEmail, ''));
+              dispatch(setLoginError(ChatErrors.login.userNotFound, ''));
             }}
             visible={
-              currentError[ChatErrors.login.emailAlreadyInUse] ||
-              currentError[ChatErrors.login.invalidEmail]
+              loginError[ChatErrors.login.userDisabled] ||
+              loginError[ChatErrors.login.invalidEmail] ||
+              loginError[ChatErrors.login.userNotFound]
             }
             errorMessage={
-              currentError[ChatErrors.login.emailAlreadyInUse]
-                ? currentError[ChatErrors.login.emailAlreadyInUse]
-                : currentError[ChatErrors.login.invalidEmail]
+              loginError[ChatErrors.login.userDisabled]
+                ? loginError[ChatErrors.login.userDisabled]
+                : loginError[ChatErrors.login.invalidEmail]
+                ? loginError[ChatErrors.login.invalidEmail]
+                : loginError[ChatErrors.login.userNotFound]
             }
           />
           <HelperTextInput
             theme={{colors: {primary: Colors.secondary}}}
             selectionColor={Colors.secondary}
             label={'Password'}
-            secureTextEntry={true}
             value={password}
+            secureTextEntry={secureTextEntry}
             onChangeText={password => {
               setPassword(password);
-              setCurrentError({
-                ...currentError,
-                [ChatErrors.login.weakPassword]: '',
-              });
+              dispatch(setLoginError(ChatErrors.login.wrongPassword, ''));
             }}
-            visible={currentError[ChatErrors.login.weakPassword]}
-            errorMessage={currentError[ChatErrors.login.weakPassword]}
+            visible={loginError[ChatErrors.login.wrongPassword]}
+            errorMessage={loginError[ChatErrors.login.wrongPassword]}
+            right={buttonIcon}
+            icon={buttonIcon}
           />
           <PlatformButton
             style={styles.button}
             color={Colors.secondary}
             platform={Platform.OS}
             text={'Login'}
-            onPress={loginUser}
+            onPress={signInUser}
           />
         </Card.Content>
       </Card>
@@ -119,6 +89,9 @@ const LoginScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    justifyContent: 'center',
+  },
   button: {
     marginTop: 25,
     borderRadius: 20,
